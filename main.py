@@ -137,11 +137,11 @@ async def enable_fec(data: FecParams):
     # Get data from request body
     current_packet_loss = data.current_packet_loss
     if current_packet_loss > 5 and current_packet_loss < 20:
-        fec_redundant = fec_redundant * 2
+        fec_redundant = fec_redundant * 1
     if current_packet_loss >= 20 and current_packet_loss < 30:
-        fec_redundant = fec_redundant * 3 
+        fec_redundant = fec_redundant * 2 
     if current_packet_loss >= 30:
-        fec_redundant = fec_redundant * 4
+        fec_redundant = fec_redundant * 3
     command_set = [
         "config vpn ipsec phase1-interface",
         "edit Binus-tunnel","set fec-egress enable",
