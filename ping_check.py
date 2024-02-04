@@ -20,16 +20,17 @@ def push_conf(command, device_ip, device_username, device_password, device_port)
         'username': device_username,
         'password': device_password,
         'port' : device_port,
-        'conn_timeout': 1000000
+        'conn_timeout': 100
     }
     net_connect = ConnectHandler(**device)
     try:
-        ping_output = net_connect.send_config_set(command,read_timeout=1000000, delay_factor=1)
+        ping_output = net_connect.send_config_set(command,read_timeout=100)
         net_connect.disconnect()
+        print(ping_output)
         
         # Regular expressions to extract the needed data
-        packets_regex = r'(\d+) packets transmitted, (\d+) packets received, (\d+)% packet loss'
-        rtt_regex = r'round-trip min/avg/max = (\d+\.\d+)/(\d+\.\d+)/(\d+\.\d+)'
+        packets_regex = r'(\d+) packets transmitted, (\d+) packets received(?:, \d+ duplicates)?, (\d+)% packet loss'
+        rtt_regex = r'round-trip min/avg/max = (\d+\.\d+)/(\d+\.\d+)/(\d+\.\d+) ms'
 
         # Extracting data using regular expressions
         packets_info = re.search(packets_regex, ping_output)
@@ -68,7 +69,8 @@ isFecLvl2Enabled = False
 isFecLvl3Enabled = False
 print("current FEC status is Enabled?: ", isFecEnabled)
 while True:
-    time.sleep(1)
+    print("-------------------------------------------------------")
+    isFecEnabled = get_fec_status()
     
     def append_with_limit(lst, item, max_length=20):
         lst.append(item)
@@ -77,6 +79,8 @@ while True:
             lst.pop(0)
 
     out = push_conf(*command_sets)
+
+    print(out)
     
     packet_loss = out["packet_loss_percentage"]
     append_with_limit(history, packet_loss)
@@ -98,8 +102,8 @@ while True:
         # Check if each element in the last five is greater than two
         return all(x > threshold for x in last_five)
     threshold_packet_loss = 2
-    isLastFiveisZero = check_last_items_are_zero(history, 5)
-    isLastFiveGreaterThanThreshold = check_more_than_x(history,5,threshold_packet_loss)
+    isLastFiveisZero = check_last_items_are_zero(history, 2)
+    isLastFiveGreaterThanThreshold = check_more_than_x(history,2,threshold_packet_loss)
     print(history)
 
     # Get the latest 5 data
@@ -137,24 +141,3 @@ while True:
         isFecLvl3Enabled = False
         print("FEC Disabled")
         print(response)
-
-    # # Threshold 20% Packet loss (level2 FEC)
-    # threshold_packet_loss_20 = 20
-    # isLastFiveGreaterThanThreshold20 = check_more_than_x(history,5,threshold_packet_loss_20)
-    # if isLastFiveGreaterThanThreshold20 and isFecLvl2Enabled == False:
-    #     import requests
-
-    #     headers = {
-    #         'accept': 'application/json',
-    #         'Content-Type': 'application/json',
-    #     }
-
-    #     json_data = {
-    #         'current_packet_loss': 31,
-    #     }
-
-    #     response = requests.post('http://127.0.0.1:8000/enable-fec', headers=headers, json=json_data)
-    #     isFecEnabled = True
-    #     isFecLvl2Enabled = True
-    #     print("FEC Enabled with 20% PL Tollerant")
-    #     print(response)
