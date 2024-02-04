@@ -70,7 +70,6 @@ isFecLvl2Enabled = False
 isFecLvl3Enabled = False
 print("current FEC status is Enabled?: ", isFecEnabled)
 while True:
-    print("-------------------------------------------------------")
     isFecEnabled = get_fec_status()
     
     def append_with_limit(lst, item, max_length=20):
