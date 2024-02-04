@@ -26,7 +26,8 @@ def push_conf(command, device_ip, device_username, device_password, device_port)
     try:
         ping_output = net_connect.send_config_set(command,read_timeout=100)
         net_connect.disconnect()
-        print(ping_output)
+        #Debug
+        # print(ping_output)
         
         # Regular expressions to extract the needed data
         packets_regex = r'(\d+) packets transmitted, (\d+) packets received(?:, \d+ duplicates)?, (\d+)% packet loss'
@@ -79,8 +80,8 @@ while True:
             lst.pop(0)
 
     out = push_conf(*command_sets)
-
-    print(out)
+    #Debug
+    # print(out)
     
     packet_loss = out["packet_loss_percentage"]
     append_with_limit(history, packet_loss)
