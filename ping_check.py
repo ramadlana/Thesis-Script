@@ -4,6 +4,10 @@ import re
 import requests
 
 ARRAY_LENGTH = 20
+# this variable to fine tuning
+# for example if value is 2, then last two packet loss then will trigger decision to turn off/on FEC
+FINE_TUNE_LAST_COUNT = 2
+MAXIMUM_PACKET_LOSS_TO_TRIGGER = 1
 
 
 def get_fec_status():
@@ -92,20 +96,20 @@ while True:
         # Check if the last n items are all zeros
         return all(x == 0 for x in lst[-n:])
     
-    def check_more_than_x(lst, n, threshold):
+    def check_more_than_x(lst, last_n, threshold):
         # Check if the list has at least 10 elements
         if len(lst) < 10:
             return False
 
         # Get the last five elements of the list
-        last_five = lst[-n:]
+        last_five = lst[-last_n:]
 
         # Check if each element in the last five is greater than two
         return all(x > threshold for x in last_five)
-    threshold_packet_loss = 2
-    isLastFiveisZero = check_last_items_are_zero(history, 2)
-    isLastFiveGreaterThanThreshold = check_more_than_x(history,2,threshold_packet_loss)
-    print(history)
+    # threshold_packet_loss = 2
+    isLastFiveisZero = check_last_items_are_zero(history, FINE_TUNE_LAST_COUNT)
+    isLastFiveGreaterThanThreshold = check_more_than_x(history,FINE_TUNE_LAST_COUNT,MAXIMUM_PACKET_LOSS_TO_TRIGGER)
+    print(f'FEC Status:{isFecEnabled} | last packet loss value: {history}')
 
     # Get the latest 5 data
     latest_five_history = history[-5:]
